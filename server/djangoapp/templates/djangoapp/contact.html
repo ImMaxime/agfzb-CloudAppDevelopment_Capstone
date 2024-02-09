@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Dealership Review</title>
@@ -13,22 +14,28 @@
 
 </head>
 
-    <body>
-    <!--Add a nav bar here -->
+<body>
     <nav class="navbar navbar-light bg-light">
         <div class="container-fluid">
             <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'djangoapp:index' %}">Dealership Review</a>
                 <a class="navbar-brand" href="{% url 'djangoapp:about' %}">About Us</a>
+                <a class="navbar-brand" href="{% url 'djangoapp:contact' %}">Contact Us</a>
             </div>
-            
+            <ul class="nav navbar-nav navbar-right">
+            </ul>
         </div>
     </nav>
-
-    <!--Add a dealer table here -->
-
-    </body>
-    <script>
-
-  </script>
+    <div class="container">
+        <p class="mt-5 h1 text-center">Contacts Us</p>
+        <div class="mt-5 h1 text-center">
+            <ul><b>Phone No: </b>123 456 7890</ul>
+            <ul><b>Email: </b>
+                <a href="mailto:maxlp12@gmail.com"></a>
+            </ul>
+            <ul><a herf="https://immaxime.github.io/"><b>Personal Web: </b>Maxime</a></ul>
+        </div>
+    </div>
+</body>
 
 </html>

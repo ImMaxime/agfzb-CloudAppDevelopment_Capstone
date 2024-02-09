@@ -14,41 +14,66 @@ import json
 logger = logging.getLogger(__name__)
 
 
-# Create your views here.
+# About View
+def about(request):
+    return render(request, 'djangoapp/about.html')
 
+# Contact View
+def contact(request):
+    return render(request, 'djangoapp/contact.html')
 
-# Create an `about` view to render a static about page
-# def about(request):
-# ...
+# Login Request View
+def login_request(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'djangoapp/login.html', {'form': form})
 
+# Logout Request View
+def logout_request(request):
+    logout(request)
+    return redirect('/')
 
-# Create a `contact` view to return a static contact page
-#def contact(request):
+# Registration Request View
+def registration_request(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('/')
+    else:
+        form = UserCreationForm()
+    return render(request, 'djangoapp/registration.html', {'form': form})
 
-# Create a `login_request` view to handle sign in request
-# def login_request(request):
-# ...
-
-# Create a `logout_request` view to handle sign out request
-# def logout_request(request):
-# ...
-
-# Create a `registration_request` view to handle sign up request
-# def registration_request(request):
-# ...
-
-# Update the `get_dealerships` view to render the index page with a list of dealerships
+# Get Dealerships View
 def get_dealerships(request):
-    context = {}
     if request.method == "GET":
+        url = "https://service.eu.apiconnect.ibmcloud.com/gws/apigateway/api/a9220b6d6b26f1eb3b657a98770b743616f7d4cd223b89cd1ca4e88ab49bdb92/api/dealership"
+        # Get dealers from the URL
+        context = {
+            "dealerships": get_dealers_from_cf(url),
+        }
         return render(request, 'djangoapp/index.html', context)
+        
+# Get Dealer Details View
+def get_dealer_details(request, dealer_id):
+    dealer = Dealer.objects.get(pk=dealer_id)
+    return render(request, 'djangoapp/dealer_details.html', {'dealer': dealer})
 
-
-# Create a `get_dealer_details` view to render the reviews of a dealer
-# def get_dealer_details(request, dealer_id):
-# ...
-
-# Create a `add_review` view to submit a review
-# def add_review(request, dealer_id):
-# ...
+# Add Review View
+def add_review(request, dealer_id):
+    if request.method == 'POST':
+        dealer = Dealer.objects.get(pk=dealer_id)
+        review = request.POST['review']
+        # Assuming there's a model for reviews related to dealers
+        # Create and save the review
+        # Redirect to the dealer details page
+    else:
+        return render(request, 'djangoapp/add_review.html', {'dealer_id': dealer_id})
 
