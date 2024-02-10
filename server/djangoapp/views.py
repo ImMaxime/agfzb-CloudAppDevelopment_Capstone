@@ -24,20 +24,29 @@ def contact(request):
 
 # Login Request View
 def login_request(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(request, request.POST)
-        if form.is_valid():
-            user = form.get_user()
+    context = {}
+    # Handles POST request
+    if request.method == "POST":
+        # Get username and password from request.POST dictionary
+        username = request.POST['username']
+        password = request.POST['psw']
+        # Try to check if provide credential can be authenticated
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # If user is valid, call login method to login current user
             login(request, user)
-            return redirect('/')
+            return redirect('djangoapp:index')
+        else:
+            # If not, return to login page again
+            return render(request, 'djangoapp/index.html', context)
     else:
-        form = AuthenticationForm()
-    return render(request, 'djangoapp/login.html', {'form': form})
+        return render(request, 'djangoapp/index.html', context)
 
 # Logout Request View
 def logout_request(request):
     logout(request)
-    return redirect('/')
+    return render(request, 'djangoapp/index.html')
+
 
 # Registration Request View
 def registration_request(request):
@@ -49,17 +58,11 @@ def registration_request(request):
             return redirect('/')
     else:
         form = UserCreationForm()
-    return render(request, 'djangoapp/registration.html', {'form': form})
+    return render(request, 'djangoapp/index.html', {'form': form})
 
 # Get Dealerships View
 def get_dealerships(request):
-    if request.method == "GET":
-        url = "https://service.eu.apiconnect.ibmcloud.com/gws/apigateway/api/a9220b6d6b26f1eb3b657a98770b743616f7d4cd223b89cd1ca4e88ab49bdb92/api/dealership"
-        # Get dealers from the URL
-        context = {
-            "dealerships": get_dealers_from_cf(url),
-        }
-        return render(request, 'djangoapp/index.html', context)
+    return render(request, 'djangoapp/index.html')
         
 # Get Dealer Details View
 def get_dealer_details(request, dealer_id):
