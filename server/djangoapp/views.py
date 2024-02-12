@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
-# from .models import related models
+from .models import DealerReview
 from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm 
@@ -80,16 +80,22 @@ def get_dealerships(request):
     if request.method == "GET":
         url = "https://maxlp12-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
         # Get dealers from the URL
-        dealerships = get_dealers_from_cf(url)
-        # Concat all dealer's short name
-        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
-        # Return a list of dealer short name
-        return HttpResponse(dealer_names)
+        context = {
+            "dealerships": get_dealers_from_cf(url),
+        }
+        return render(request, 'djangoapp/index.html', context)
         
 # Get Dealer Details View
 def get_dealer_details(request, dealer_id):
-    dealer = Dealer.objects.get(pk=dealer_id)
-    return render(request, 'djangoapp/dealer_details.html', {'dealer': dealer})
+    if request.method == "GET":
+        url_r = f"https://e1cc25fa-af33-4254-ae3f-56f091075084-bluemix.cloudantnosqldb.appdomain.cloud/api/a9220b6d6b26f1eb3b657a98770b743616f7d4cd223b89cd1ca4e88ab49bdb92/api/review?dealerId={dealer_id}"
+        url_ds = f"https://e1cc25fa-af33-4254-ae3f-56f091075084-bluemix.cloudantnosqldb.appdomain.cloud/api/a9220b6d6b26f1eb3b657a98770b743616f7d4cd223b89cd1ca4e88ab49bdb92/api/dealership?dealerId={dealer_id}"
+        # Get dealers from the URL
+        context = {
+            "dealer": get_dealers_from_cf(url_ds)[0],
+            "reviews": get_dealer_reviews_from_cf(url_r, dealer_id),
+        }
+        return render(request, 'djangoapp/dealer_details.html', context)
 
 # Add Review View
 def add_review(request, dealer_id):

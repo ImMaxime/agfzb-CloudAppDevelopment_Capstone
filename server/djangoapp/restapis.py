@@ -11,15 +11,11 @@ from requests.auth import HTTPBasicAuth
 def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
+    API_KEY = os.getenv('NLU_API_KEY')
     try:
-        if api_key:
-            # Basic authentication GET
-            response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    auth=HTTPBasicAuth('apikey', api_key))
-        else:
-            # no authentication GET
-            response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
         # Call get method of requests library with URL and parameters
+        response = requests.get(
+            url, headers={'Content-Type': 'application/json'}, auth=HTTPBasicAuth('apikey', API_KEY))
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -72,7 +68,7 @@ def get_dealers_from_cf(url, **kwargs):
                 zip=dealer_doc["zip"],
             )
             results.append(dealer_obj)
-    return results
+        return results
 
 # Create a get_dealer_reviews_from_cf method to get reviews by dealer id from a cloud function
 # def get_dealer_by_id_from_cf(url, dealerId):
