@@ -12,9 +12,14 @@ def get_request(url, **kwargs):
     print(kwargs)
     print("GET from {} ".format(url))
     try:
+        if api_key:
+            # Basic authentication GET
+            response = requests.get(url, headers={'Content-Type': 'application/json'},
+                                    auth=HTTPBasicAuth('apikey', api_key))
+        else:
+            # no authentication GET
+            response = requests.get(url, headers={'Content-Type': 'application/json'}, params=kwargs)
         # Call get method of requests library with URL and parameters
-        response = requests.get(url, headers={'Content-Type': 'application/json'},
-                                    params=kwargs)
     except:
         # If any error occurs
         print("Network exception occurred")
@@ -73,8 +78,6 @@ def get_dealers_from_cf(url, **kwargs):
 # def get_dealer_by_id_from_cf(url, dealerId):
 # - Call get_request() with specified arguments
 # - Parse JSON results into a DealerView object list
-
-
 def get_dealer_reviews_from_cf(url, dealerId):
     results = []
     # Call get_request with a URL parameter
@@ -105,10 +108,10 @@ def get_dealer_reviews_from_cf(url, dealerId):
 # def analyze_review_sentiments(text):
 # - Call get_request() with specified arguments
 # - Get the returned sentiment label such as Positive or Negative
-def analyze_review_sentiments(text):
+def analyze_review_sentiments(dealerreview):
     URL = 'https://api.us-east.natural-language-understanding.watson.cloud.ibm.com/instances/4c1dae76-d689-45e0-8340-f55e03dccfc0'
     API_KEY = os.getenv('NLU_API_KEY')
-    params = json.dumps({"text": text, "features": {"sentiment": {}}})
+    params = json.dumps({"text": dealerreview, "features": {"sentiment": {}}})
     response = requests.post(
         URL, data=params, headers={'Content-Type': 'application/json'}, auth=HTTPBasicAuth('apikey', API_KEY)
     )

@@ -93,12 +93,30 @@ def get_dealer_details(request, dealer_id):
 
 # Add Review View
 def add_review(request, dealer_id):
-    if request.method == 'POST':
-        dealer = Dealer.objects.get(pk=dealer_id)
-        review = request.POST['review']
-        # Assuming there's a model for reviews related to dealers
-        # Create and save the review
-        # Redirect to the dealer details page
-    else:
-        return render(request, 'djangoapp/add_review.html', {'dealer_id': dealer_id})
-
+    if request.method == "GET":
+        url = f"https://e1cc25fa-af33-4254-ae3f-56f091075084-bluemix.cloudantnosqldb.appdomain.cloud/api/dealership?dealerId={dealer_id}"
+        # Get dealers from the URL
+        context = {
+            "cars": CarModel.objects.all(),
+            "dealer": get_dealers_from_cf(url)[0],
+        }
+        print(context)
+        return render(request, 'djangoapp/add_review.html', context)
+    if request.method == "POST":
+        form = request.POST
+        review = {
+            "name": f"{request.user.first_name} {request.user.last_name}",
+            "dealership": dealer_id,
+            "review": form["content"],
+            "purchase": form.get("purchasecheck"),
+            }
+        if form.get("purchasecheck"):
+            review["purchasedate"] = datetime.strptime(form.get("purchasedate"), "%m/%d/%Y").isoformat()
+            car = CarModel.objects.get(pk=form["car"])
+            review["car_make"] = car.car_make.name
+            review["car_model"] = car.name
+            review["car_year"]= car.year.strftime("%Y")
+        json_payload = {"review": review}
+        URL = 'https://e1cc25fa-af33-4254-ae3f-56f091075084-bluemix.cloudantnosqldb.appdomain.cloud/api/review'
+        post_request(URL, json_payload, dealerId=dealer_id)
+    return redirect("djangoapp:dealer_details", dealer_id=dealer_id)
