@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 # from .models import related models
-# from .restapis import related methods
+from .restapis import get_dealers_from_cf, get_dealer_reviews_from_cf, analyze_review_sentiments
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm 
 from django.contrib import messages
@@ -77,7 +77,14 @@ def registration_request(request):
 
 # Get Dealerships View
 def get_dealerships(request):
-    return render(request, 'djangoapp/index.html')
+    if request.method == "GET":
+        url = "https://maxlp12-3000.theiadockernext-0-labs-prod-theiak8s-4-tor01.proxy.cognitiveclass.ai/dealerships/get"
+        # Get dealers from the URL
+        dealerships = get_dealers_from_cf(url)
+        # Concat all dealer's short name
+        dealer_names = ' '.join([dealer.short_name for dealer in dealerships])
+        # Return a list of dealer short name
+        return HttpResponse(dealer_names)
         
 # Get Dealer Details View
 def get_dealer_details(request, dealer_id):
